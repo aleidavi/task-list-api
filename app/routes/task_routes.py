@@ -1,4 +1,4 @@
-from flask import Blueprint, abort, make_response, request, Response
+from flask import Blueprint, abort, jsonify, make_response, request, Response
 from app.db import db
 from app.models.task import Task
 
@@ -7,53 +7,44 @@ tasks_bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
 
 @tasks_bp.post("")
 def create_task():
-    request_body = request.get_json()
-    title = request_body["title"]
-    description = request_body["description"]
-    completed_at = request_body["completed_at"]
+    
+    try:
+        request_body = request.get_json()
+        title = request_body["title"]
+        description = request_body["description"]
+        new_task = Task(title=title, description=description)
 
-    new_task = Task(title=title, description=description, completed_at=completed_at)
+        db.session.add(new_task)
+        db.session.commit()
 
-    # validating a new task with ALL required info
-    if not new_task:
+        return {"task": new_task.to_dict()}, 201
+    
+    except KeyError as error:
         response = {"details": f"Invalid data"}
         abort(make_response(response, 400))
 
-    db.session.add(new_task)
-    db.session.commit()
-    response = new_task.to_dict()
-
-    return response, 201
 
 @tasks_bp.get("")
-def get_all_task():
-    query = db.select(Task)
-    title_param = request.args.get("title")
-
-    if title_param:
-        query = query.where(Task.title == title_param)
-
-    description_param = request.args.get("description")
-    if description_param:
-        query = query.where(Task.description.ilike(f"%{description_param}%"))
+def get_tasks_sort_title():
     
-    completed_at_param = request.args.get("completed_at")
-    if completed_at_param:
-        query = query.where(Task.completed_at.ilike(f"%{completed_at_param}%"))
-    
-    query = query.order_by(Task.id)
+    title_sort = request.args.get("sort")
 
-    tasks = db.session.scalars(query)
+    if title_sort == 'asc':
+        tasks = Task.query.order_by(Task.title.asc()).all()
+    
+    elif title_sort == 'desc':
+        tasks = Task.query.order_by(Task.title.desc()).all()
+
 
     tasks_response = [task.to_dict() for task in tasks]
 
-    return tasks_response
+    return jsonify(tasks_response)
 
 
 @tasks_bp.get("/<task_id>")
 def get_one_task(task_id):
     task = validate_task(task_id)
-    response = task.to_dict()
+    response = {"task": task.to_dict()}
     return response
 
 
@@ -64,21 +55,22 @@ def update_task(task_id):
 
     task.title = request_body["title"]
     task.description = request_body["description"]
-    task.completed_at = request_body["completed_at"]
+    
     db.session.commit()
 
-    return Response(status=204, mimetype="application/json")
+    return {"task": task.to_dict()} # Response(status=204, mimetype="application/json")
 
 @tasks_bp.delete("/<task_id>")
 def delete_task(task_id):
     task = validate_task(task_id)
+
     db.session.delete(task)
     db.session.commit()
 
-    response = {"details": f"Task {task_id} \{task}\ successfully deleted"}
+    response = {"details": f'Task {task_id} "{task.title}" successfully deleted'}
 
     # CHECK IF THIS IS CORRECT
-    return Response(response, status=204, mimetype="application/json")
+    return jsonify(response) # Response(status=200, mimetype="application/json")
 
 def validate_task(task_id):
     try:
@@ -96,3 +88,6 @@ def validate_task(task_id):
         abort(make_response(response, 404))
 
     return task
+
+
+    

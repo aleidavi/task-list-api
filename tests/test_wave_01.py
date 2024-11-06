@@ -60,9 +60,12 @@ def test_get_task_not_found(client):
     # Assert
     assert response.status_code == 404
 
-    raise Exception("Complete test with assertion about response body")
+    # raise Exception("Complete test with assertion about response body")
     # *****************************************************************
     # **Complete test with assertion about response body***************
+    assert "details" in response_body
+    assert response_body == {"details": f"Task 1 not found"}
+
     # *****************************************************************
 
 
@@ -131,9 +134,11 @@ def test_update_task_not_found(client):
     # Assert
     assert response.status_code == 404
 
-    raise Exception("Complete test with assertion about response body")
+    # raise Exception("Complete test with assertion about response body")
     # *****************************************************************
     # **Complete test with assertion about response body***************
+    assert "details" in response_body
+    assert response_body == {"details": "Task 1 not found"}
     # *****************************************************************
 
 
@@ -152,7 +157,7 @@ def test_delete_task(client, one_task):
     assert Task.query.get(1) == None
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+# @pytest.mark.skip(reason="No way to test this feature yet")
 def test_delete_task_not_found(client):
     # Act
     response = client.delete("/tasks/1")
@@ -161,12 +166,15 @@ def test_delete_task_not_found(client):
     # Assert
     assert response.status_code == 404
 
-    raise Exception("Complete test with assertion about response body")
+    # raise Exception("Complete test with assertion about response body")
     # *****************************************************************
     # **Complete test with assertion about response body***************
+    assert "details" in response_body
+    assert response_body == {"details": f"Task 1 not found"}
+    assert Task.query.all() == []
     # *****************************************************************
 
-    assert Task.query.all() == []
+    
 
 
 # @pytest.mark.skip(reason="No way to test this feature yet")
