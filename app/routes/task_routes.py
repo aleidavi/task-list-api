@@ -1,7 +1,7 @@
 from flask import Blueprint, abort, jsonify, make_response, request, Response
 from app.db import db
 from app.models.task import Task
-
+from datetime import datetime
 
 tasks_bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
 
@@ -24,18 +24,57 @@ def create_task():
         abort(make_response(response, 400))
 
 
+
+
+@tasks_bp.patch("/<task_id>/mark_complete")
+def mark_task_complete(task_id):
+
+    slack
+    current_task = validate_task(task_id)
+
+    if not current_task.completed_at:
+        current_task.completed_at = datetime.now()
+
+    db.session.add(current_task)
+    db.session.commit()
+
+    response = {"task": current_task.to_dict()}
+
+    return jsonify(response)
+
+
+
+
+@tasks_bp.patch("/<task_id>/mark_incomplete")
+def mark_task_incomplete(task_id):
+
+    current_task = validate_task(task_id)
+
+    if current_task.completed_at:
+        current_task.completed_at = None
+
+    db.session.add(current_task)
+    db.session.commit()
+
+    response = {"task": current_task.to_dict()}
+
+    return jsonify(response)
+
+
 @tasks_bp.get("")
 def get_tasks_sort_title():
-    
+
+    query = db.select(Task)
+
     title_sort = request.args.get("sort")
 
-    if title_sort == 'asc':
-        tasks = Task.query.order_by(Task.title.asc()).all()
+    if title_sort and title_sort == 'asc':
+        query = query.order_by(Task.title.asc())
     
-    elif title_sort == 'desc':
-        tasks = Task.query.order_by(Task.title.desc()).all()
+    elif title_sort and title_sort == 'desc':
+        query = query.order_by(Task.title.desc())
 
-
+    tasks = db.session.scalars(query)
     tasks_response = [task.to_dict() for task in tasks]
 
     return jsonify(tasks_response)
