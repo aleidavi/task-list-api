@@ -1,8 +1,12 @@
-from flask import Blueprint, abort, jsonify, make_response, request, Response
+from flask import Blueprint, abort, jsonify, make_response, request
 from app.db import db
 from app.models.task import Task
 from datetime import datetime
+import os
+import requests
 
+TOKEN = os.environ.get("SLACK_TOKEN")
+SLACK_CHANNEL = "#avieyra-task-notification"
 tasks_bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
 
 @tasks_bp.post("")
@@ -25,15 +29,35 @@ def create_task():
 
 
 
+def send_slack_msg(task_title):
+    """
+    Information obtained from Slack Wep API Docmentation:
+    https://api.slack.com/methods/chat.postMessage
+    """
+    
+    url = "https://slack.com/api/chat.postMessage"
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {TOKEN}"
+    }
 
+    data = {
+        "channel": SLACK_CHANNEL,
+        "text": f"Someone just completed the task: {task_title}"
+    }
+
+    requests.post(url, headers=headers, json=data)
+    
+    
 @tasks_bp.patch("/<task_id>/mark_complete")
 def mark_task_complete(task_id):
 
-    slack
     current_task = validate_task(task_id)
 
     if not current_task.completed_at:
         current_task.completed_at = datetime.now()
+
+    send_slack_msg(current_task.title)
 
     db.session.add(current_task)
     db.session.commit()
@@ -68,10 +92,10 @@ def get_tasks_sort_title():
 
     title_sort = request.args.get("sort")
 
-    if title_sort and title_sort == 'asc':
+    if title_sort and title_sort == "asc":
         query = query.order_by(Task.title.asc())
     
-    elif title_sort and title_sort == 'desc':
+    elif title_sort and title_sort == "desc":
         query = query.order_by(Task.title.desc())
 
     tasks = db.session.scalars(query)
@@ -97,7 +121,7 @@ def update_task(task_id):
     
     db.session.commit()
 
-    return {"task": task.to_dict()} # Response(status=204, mimetype="application/json")
+    return {"task": task.to_dict()} 
 
 @tasks_bp.delete("/<task_id>")
 def delete_task(task_id):
@@ -109,7 +133,7 @@ def delete_task(task_id):
     response = {"details": f'Task {task_id} "{task.title}" successfully deleted'}
 
     # CHECK IF THIS IS CORRECT
-    return jsonify(response) # Response(status=200, mimetype="application/json")
+    return jsonify(response) 
 
 def validate_task(task_id):
     try:

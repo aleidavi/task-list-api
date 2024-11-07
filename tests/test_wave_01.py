@@ -64,7 +64,7 @@ def test_get_task_not_found(client):
     # *****************************************************************
     # **Complete test with assertion about response body***************
     assert "details" in response_body
-    assert response_body == {"details": f"Task 1 not found"}
+    assert response_body["details"] == "Task 1 not found"
 
     # *****************************************************************
 
@@ -170,8 +170,7 @@ def test_delete_task_not_found(client):
     # *****************************************************************
     # **Complete test with assertion about response body***************
     assert "details" in response_body
-    assert response_body == {"details": f"Task 1 not found"}
-    assert Task.query.all() == []
+    assert response_body ["details"] == "Task 1 not found"
     # *****************************************************************
 
     

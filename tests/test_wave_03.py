@@ -131,6 +131,7 @@ def test_mark_complete_missing_task(client):
     # raise Exception("Complete test with assertion about response body")
     # *****************************************************************
     # **Complete test with assertion about response body***************
+    assert response_body == {"details": f"Task 1 not found"}
     # *****************************************************************
 
 
@@ -146,4 +147,5 @@ def test_mark_incomplete_missing_task(client):
     # raise Exception("Complete test with assertion about response body")
     # *****************************************************************
     # **Complete test with assertion about response body***************
+    assert response_body == {"details": f"Task 1 not found"}
     # *****************************************************************
