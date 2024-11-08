@@ -6,7 +6,7 @@ import os
 import requests
 
 TOKEN = os.environ.get("SLACK_TOKEN")
-SLACK_CHANNEL = "#avieyra-task-notification"
+SLACK_CHANNEL = os.environ["SLACK_CHANNEL"]
 tasks_bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
 
 @tasks_bp.post("")
@@ -35,13 +35,13 @@ def send_slack_msg(task_title):
     https://api.slack.com/methods/chat.postMessage
     """
     
-    url = "https://slack.com/api/chat.postMessage"
-    headers = {
+    url=os.environ.get("SLACK_URL")
+    headers={
         "Content-Type": "application/json",
         "Authorization": f"Bearer {TOKEN}"
     }
 
-    data = {
+    data={
         "channel": SLACK_CHANNEL,
         "text": f"Someone just completed the task: {task_title}"
     }

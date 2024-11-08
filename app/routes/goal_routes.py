@@ -1,7 +1,6 @@
 from flask import Blueprint, abort, jsonify, make_response, request
 from app.db import db
 from app.models.goal import Goal
-import os
 import requests
 
 
@@ -24,6 +23,13 @@ def create_goal():
     except KeyError as error:
         response = {"details": f"Invalid data"}
         abort(make_response(response, 400))
+
+@goals_bp.get("/<goal_id>/tasks")
+def get_tasks_by_goal(goal_id):
+    goal = validate_goal(goal_id)
+    response = [task.to_dict() for task in goal.tasks]
+    return response
+
 
 @goals_bp.get("")
 def get_all_goals():
