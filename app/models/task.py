@@ -11,7 +11,7 @@ class Task(db.Model):
     completed_at: Mapped[Optional[datetime]]
 
     goal_id: Mapped[Optional[int]] = mapped_column(ForeignKey("goal.id"))
-    goal: Mapped[Optional["Goal"]] = relationship(back_populates="tasks")
+    goal: Mapped[Optional["Goal"]] = relationship(back_populates="tasks") # type: ignore
 
     
     def to_dict(self):

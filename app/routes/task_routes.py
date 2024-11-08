@@ -2,6 +2,7 @@ from flask import Blueprint, abort, jsonify, make_response, request
 from app.db import db
 from app.models.task import Task
 from datetime import datetime
+# from .route_utilities import validate_model, create_model, validate_task
 import os
 import requests
 
@@ -132,7 +133,6 @@ def delete_task(task_id):
 
     response = {"details": f'Task {task_id} "{task.title}" successfully deleted'}
 
-    # CHECK IF THIS IS CORRECT
     return jsonify(response) 
 
 def validate_task(task_id):
@@ -151,6 +151,8 @@ def validate_task(task_id):
         abort(make_response(response, 404))
 
     return task
+
+# 
 
 
     

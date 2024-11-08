@@ -2,11 +2,13 @@ from flask import Blueprint, abort, jsonify, make_response, request
 from app.db import db
 from app.models.goal import Goal
 import requests
+# from .route_utilities import validate_model, create_model, validate_task, validate_goal
+from app.models.task import Task
 
 
-goals_bp = Blueprint("goals_bp", __name__, url_prefix="/goals")
+bp = Blueprint("goals_bp", __name__, url_prefix="/goals")
 
-@goals_bp.post("")
+@bp.post("")
 def create_goal():
 
     try:
@@ -24,14 +26,14 @@ def create_goal():
         response = {"details": f"Invalid data"}
         abort(make_response(response, 400))
 
-@goals_bp.get("/<goal_id>/tasks")
+@bp.get("/<goal_id>/tasks")
 def get_tasks_by_goal(goal_id):
     goal = validate_goal(goal_id)
     response = [task.to_dict() for task in goal.tasks]
     return response
 
 
-@goals_bp.get("")
+@bp.get("")
 def get_all_goals():
 
     query = db.select(Goal).order_by(Goal.id)
@@ -41,7 +43,7 @@ def get_all_goals():
 
     return goals_response
 
-@goals_bp.get("/<goal_id>")
+@bp.get("/<goal_id>")
 def get_one_goal(goal_id):
 
     goal = validate_goal(goal_id)
@@ -49,7 +51,7 @@ def get_one_goal(goal_id):
 
     return response
 
-@goals_bp.delete("/<goal_id>")
+@bp.delete("/<goal_id>")
 def delete_goal(goal_id):
 
     goal = validate_goal(goal_id)
@@ -60,7 +62,7 @@ def delete_goal(goal_id):
     response = {"details": f'Goal {goal_id} "{goal.title}" successfully deleted'}
     return jsonify(response)
     
-@goals_bp.put("/<goal_id>")
+@bp.put("/<goal_id>")
 def update_goal(goal_id):
     goal = validate_goal(goal_id)
     request_body = request.get_json()
