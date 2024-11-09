@@ -1,16 +1,17 @@
 from flask import Blueprint, abort, jsonify, make_response, request
-from app.db import db
-from app.models.task import Task
+from ..db import db
+from ..models.task import Task
 from datetime import datetime
 # from .route_utilities import validate_model, create_model, validate_task
 import os
 import requests
 
 TOKEN = os.environ.get("SLACK_TOKEN")
-SLACK_CHANNEL = os.environ["SLACK_CHANNEL"]
-tasks_bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
+SLACK_CHANNEL=os.environ.get("SLACK_CHANNEL")
+bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
 
-@tasks_bp.post("")
+
+@bp.post("")
 def create_task():
     
     try:
@@ -50,7 +51,7 @@ def send_slack_msg(task_title):
     requests.post(url, headers=headers, json=data)
     
     
-@tasks_bp.patch("/<task_id>/mark_complete")
+@bp.patch("/<task_id>/mark_complete")
 def mark_task_complete(task_id):
 
     current_task = validate_task(task_id)
@@ -70,7 +71,7 @@ def mark_task_complete(task_id):
 
 
 
-@tasks_bp.patch("/<task_id>/mark_incomplete")
+@bp.patch("/<task_id>/mark_incomplete")
 def mark_task_incomplete(task_id):
 
     current_task = validate_task(task_id)
@@ -86,15 +87,14 @@ def mark_task_incomplete(task_id):
     return jsonify(response)
 
 
-@tasks_bp.get("")
+@bp.get("")
 def get_tasks_sort_title():
 
     query = db.select(Task)
 
     title_sort = request.args.get("sort")
-
     if title_sort and title_sort == "asc":
-        query = query.order_by(Task.title.asc())
+        query = query.order_by(Task.title)
     
     elif title_sort and title_sort == "desc":
         query = query.order_by(Task.title.desc())
@@ -105,14 +105,15 @@ def get_tasks_sort_title():
     return jsonify(tasks_response)
 
 
-@tasks_bp.get("/<task_id>")
+@bp.get("/<task_id>")
 def get_one_task(task_id):
     task = validate_task(task_id)
-    response = {"task": task.to_dict()}
+    response = {"task": task.to_nested_dict()}
     return response
 
 
-@tasks_bp.put("/<task_id>")
+
+@bp.put("/<task_id>")
 def update_task(task_id):
     task = validate_task(task_id)
     request_body = request.get_json()
@@ -124,7 +125,7 @@ def update_task(task_id):
 
     return {"task": task.to_dict()} 
 
-@tasks_bp.delete("/<task_id>")
+@bp.delete("/<task_id>")
 def delete_task(task_id):
     task = validate_task(task_id)
 
@@ -133,7 +134,8 @@ def delete_task(task_id):
 
     response = {"details": f'Task {task_id} "{task.title}" successfully deleted'}
 
-    return jsonify(response) 
+    return jsonify(response)
+
 
 def validate_task(task_id):
     try:
