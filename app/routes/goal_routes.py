@@ -60,7 +60,7 @@ def get_tasks_by_goal(goal_id):
 @bp.post("/<goal_id>/tasks")
 def create_new_tasks_for_goal(goal_id):
     
-    # current_goal = validate_goal(goal_id)
+    current_goal = validate_goal(goal_id)
     request_body = request.get_json()
     
         
@@ -68,12 +68,12 @@ def create_new_tasks_for_goal(goal_id):
 
     for task in current_goal_tasks:
         current_task = validate_task(task)
-        query = db.select(Task).where(current_task.goal_id == goal_id)
+        # query = db.select(Task).where(current_task.goal_id == goal_id)
         current_task.goal_id = goal_id
 
     db.session.commit()
 
-    return {"id": int(goal_id),
+    return {"id": current_goal.id,
             "task_ids": current_goal_tasks
         }
 
@@ -88,6 +88,7 @@ def delete_goal(goal_id):
 
     response = {"details": f'Goal {goal_id} "{goal.title}" successfully deleted'}
     return jsonify(response)
+
     
 @bp.put("/<goal_id>")
 def update_goal(goal_id):
