@@ -50,12 +50,6 @@ class Task(db.Model):
 
         return task_dictionary
 
-    @classmethod
-    def from_dict(cls, task_data):
-        return cls(
-            title=task_data["title"],
-            goal_id=task_data.get("goal_id", None)
-        )
 
 
 

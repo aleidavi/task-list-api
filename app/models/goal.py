@@ -36,12 +36,3 @@ class Goal(db.Model):
             goal_to_dict["tasks"] = self.check_goal_tasks()
         
         return goal_to_dict
-
-
-    
-
-    
-    @classmethod
-    def from_dict(cls, goal_data):
-        new_goal = cls(title=goal_data["title"])
-        return new_goal
