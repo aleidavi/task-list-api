@@ -1,7 +1,7 @@
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship # type: ignore
 from ..db import db
 from datetime import datetime
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey # type: ignore
 from typing import Optional
 
 from typing import TYPE_CHECKING

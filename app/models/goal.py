@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship # type: ignore
 from ..db import db
 from ..routes.task_routes import validate_task
 from typing import TYPE_CHECKING
