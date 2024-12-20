@@ -22,6 +22,7 @@ def create_app(test_config=None):
     #     # to override the app's default settings for testing
     #     app.config.update(config)
 
+    # Initialize app with SQLAlchemy and Migrate
     db.init_app(app)
     migrate.init_app(app, db)
 
