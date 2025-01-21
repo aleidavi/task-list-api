@@ -23,7 +23,7 @@ def create_task():
         db.session.add(new_task)
         db.session.commit()
 
-        return {"task": new_task.to_dict()}, 201
+        return new_task.to_dict(), 201
     
     except KeyError as error:
         response = {"details": f"Invalid data"}
@@ -64,7 +64,7 @@ def mark_task_complete(task_id):
     db.session.add(current_task)
     db.session.commit()
 
-    response = {"task": current_task.to_dict()}
+    response = current_task.to_dict()
 
     return jsonify(response)
 
